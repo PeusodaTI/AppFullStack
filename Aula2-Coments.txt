@@ -1,0 +1,148 @@
+//Comentários aula 2
+
+{
+    Atalho VSC:
+    Ir para última linha da seleção: ALT + SHIPT + I
+}
+
+{
+    Pesquisar sobre CSS {
+        Position Relative
+    }
+}
+
+{
+    web {
+
+        Configuração da fonte que será utilizada.
+        O arquivo que importa as fontes é -//layout.tsx
+        Modificar a importação de { Inter } para 
+        -//import { Roboto_Flex as Roboto, Bai_Jamjuree as BaiJamjuree } from 'next/font/google'
+        A fonte Roboto_Flex possui o flex para se adaptar aos diversos tipos de pesos
+
+        para tornar a fonte importada integrável com o TailwindCss 
+        crie variáveis 
+        const roboto = Roboto({ subsets: ['latin'], variable: '--font-roboto' }) -/// o variable é o nome que será atribuido para a fonte
+        const baiJamjuree = BaiJamjuree({
+            subsets: ['latin'],
+            weight: '700',
+            variable: '--font-bai-jamjuree',
+        }) -// weight é o peso da fonte
+
+        Para usar a fonte será necessário adicioná-la ao tailwind.config 
+        theme: {
+            extend: {
+            fontFamily: {
+                sans: 'var(--font-roboto)',
+            },
+        },
+
+        Estilização e construção da interface.
+        Primeiro passo importação das cores que são utilizadas no projeto - é opcional utilizar ou não a paleta do tailwind
+
+        Quando eu salvo uma imagem com o nome icon dentro dentro do diretorio /src/app/ automaticamente o Next
+        utiliza aquela imagem como Favicon da página
+
+        Blur
+        <div className="absolute right-0 top-1/2 h-[280px] w-[526px] bg-purple-700 opacity-50" />
+
+        para fazer importação direta de um SVG ou img no tailwind use -//bg-[url(../assets/bg-star.svg)]
+
+        Para utilização de icones no react utlizamos o pacote lucide-react -//npm install lucide-react
+        Esse pacote já está atualizado com a nova versão do Next - pacote da comunidade React.
+
+        A importação de imagem no Next é feita através de componente, diferente do React puro.
+        O Next faz a redefinição da imagem, reduzindo tamanho para otimizar a utilização da mesma no Sistema
+
+        Primeiro import o pacote (Componente) de dentro do Next e a imagem do diretorio 
+            -//import Image from 'next/image'
+            -//import logo from '../assets/nlw-spacetime-logo.svg'
+
+        Depois utilize o componente passando os atributos src e alt
+            -//<Image src={logo} alt="NLW Spacetime" />
+    },
+
+
+
+    Mobile {
+        Copiar a configuração de cores do tailwind web para o mobile.
+
+        Configuração das fontes 
+            Será necessário usar o pacote expo google fonts -//https://github.com/expo/google-fonts
+            Instalação de 3 pacotes, font roboto, font bai-Bai_Jamjuree e expo-font (esse é obrigatório)
+            -//npx expo install @expo-google-fonts/roboto @expo-google-fonts/bai-jamjuree expo-font 
+
+            Importação da fonte no expo deve ser cada tamanho separado, diferente da web
+            import { 
+                useFonts,
+                Roboto_400Regular,
+                Roboto_700Bold,
+            } from '@expo-google-fonts/roboto';
+
+            import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree';
+
+            O método useFonts retorna um booleano, dessa forma, ao fazer uma desestruturação de array podemos fazer condição para apresentação
+            dos textos
+
+                const [hasFontsLoaded] = useFonts({
+                    Roboto_400Regular,
+                    Roboto_700Bold,
+                    BaiJamjuree_700Bold
+                })
+
+                Caso as fontes não seja carregadas, não será apresentado os textos
+                if(!hasFontsLoaded) {
+                    return null
+                }
+
+            Para utilizar as fontes adicione um fontFamily no tailwindconfig como os nomes que quiser,
+            nesse caso usamos "Title", "Body" e "Alt (alternativa)"
+            Na tag (font-"Nome")
+
+            O <ImagemBackgroun /> equivale a uma <Div> porém, ele oferece a posibilidade de inserir uma imagem
+            através do atributo source={imagemImportada}
+
+            Quando se importa uma imagem no React Native retorna o seguinte erro
+                Cannot find module './src/assets/bg-blur.png' or its corresponding type declarations.
+            para resolver crie um arquivo com a extensão "d.ts" - isso significa que será um arquivo que conterá
+            apenas TypeScript.
+
+            /src/assets/assets.d.ts 
+                declare module '*.png'
+            isso fará com que o typescript entenda que todo arquivo que termine com .png é um arquivo que pode ser importado
+
+            O React Native não suporta SVG por padrão, então há necessidade de instalação de um pacote para isso
+            https://docs.expo.dev/ui-programming/using-svgs/ -//docs
+            https://github.com/kristerkari/react-native-svg-transformer
+
+            Essa biblioteca transforma o SVG em um <Component > utilizável.
+                1 - npx expo install react-native-svg
+                2 - npm i -D react-native-svg-transformer
+                3 - na raiz do projeto /mobile/metro.config.js crie um arquivo metro.config.js 
+                3 - nesse arquivo adicione o Script solicitado.
+                4 - Adicione o conteudo typescrip no assets.d.ts para o React entender que o SVG também é valido para importação
+
+            O native wind só suporta componentes globais do React Native, como o Text, View etc. O SVG Transforme não é
+            para eletilizar o componente SVG com o tailwind, crie um const e use a função styled(<Component SVG />) que 
+            vem dentro do NativeWind
+            //const StyledStripes = styled(Stripes)
+
+            No React Native não existe <button> e Sim <Touchable> 
+            O <TouchableOpacity /> é um botão que quando é clicado diminui levemente a opacidade.
+                A propriedade -//activeOpacity={} permite diminuir a opacidade do botão
+            Todo texto em React Native deve ser adicionado no Componente <Text />
+
+    }
+
+    server {
+        
+    }
+}
+
+Parei 24:00:00 - Construção interface
+
+Parei 36:00:00 - Construção interface Icon User
+
+Parei 44:00:00 - Contrução interface 
+
+Parei 50:00:00 - Início Mobile

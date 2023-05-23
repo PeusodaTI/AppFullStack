@@ -1,0 +1,222 @@
+//Comentários sobre o Projeto NLW Spacetime
+
+AULA 01 {
+    
+    Informações adicionais para estudo {
+        API Restfull -// Entender melhor os conceitos. 
+
+        método .then em promises
+
+    }
+
+    Extensões VSCode importantes para o NLW Spacetime {
+        ESLint: ESLint - força padronização do código. // Caso a extensão não seja adicionada, os padrões não serão mostrados explicitamentes.
+        
+        Prisma
+
+        Tailwind CSS IntelliSense: Permite escrever o código com Tailwind.
+    }
+
+    Atalhos
+    {
+        Emoji //-Windows .
+    }
+    Backend / Server {
+        {
+            Iniciando o projeto Node : //npm init -y
+        }
+        
+        {
+            Instalar o Typescript como dependência de desenvolvimento - //npm i typescript -D
+            Instalar a biblioteca TSX como dependência de desenvolvimento para automatizar o processo
+                de conversão do arquivo TS em JS por baixo dos panos -// npm i tsx -D
+        }
+        
+        {
+            Instalar a bibliote types/node como dependência de desenvolvimento isso da habilidade 
+            para o typescript entender que estar dentro de um projeto Node, e com isso entender 
+            algumas coisas globais em um projeto Node, como a variaável process e import de bibliotecas nativas do Node
+            do Node  
+            //- npm i @types/node -D 
+        }
+
+        {
+            Configurando o Typescript no Node, iniciando o binário "tsc" dentro de nodemodules/bin/tsc
+            "npx executa binários dentro do projeto."
+            Será criado o arquivo de configuração do Typescript //-tsconfig.json
+            //- npx tsc --init
+
+            Dentro do arquivo tsconfig mude a versão do EcmaScript que será gerado após compilação do código
+            Typescript para Javascript para rodar em produção.
+            //-"target": "ES2016" para "ES2020"
+            Com isso o Node já entenderá o Javascript
+
+        }
+
+        {
+            criar o diretório /server/src como diretório raiz do projeto.
+            em /server/src/ criar o arquivo server.ts que será nossa API.
+        }
+
+        {
+            Adicionar o script de execução do arquivo server.ts usando o TSX
+                no arquivo package.json insira em 
+                "scripts": {
+                    "dev": "tsx src/server.ts" -//Adicionando o watch no script, ao rodar o comando npm run dev 
+                    //o script continuará em execução atualizando as modificações.
+                    "dev": "tsx watch src/server.ts"
+                }
+        }
+
+        {
+            Adicionar o framework Backend que será utilizado, podendo ser o express Js ou, no caso deste NLW o fastify.
+            Esse framework não poderá ser instalado como dependência de desenvolvimento, pois o mesmo será utilizado também
+            em produção.
+            -//npm i fastify
+        }
+
+        {
+            Instalação ESLint para padronização do desenvolvimento do software
+            -//npm i eslint -D
+            Dentro do ESLint você pode criar sua convesão ou utilizar uma de terceiro. Nesse caso usaremos a convesão da
+            Rocketseat. Nesse caso será necessário instalar o pacote da rocketseat
+            -//npm i @rocketseat/eslint-config -D
+
+            Para usar a convesão dentro do diretorio raiz /App/server/ criar o arquivo -//.eslintrc.json
+            no arquivo .eslintrc.json adicionar o script 
+            -// {
+            //    "extends": [
+            //        "@rocketseat/eslint-config/node"
+            //    ]
+            //}
+            O /node indica que as convensões são para um projeto Node, no React mudar para /react, assim como no React Native
+
+            Quando instalado corretamente o ESLint apontará erros de padronização.
+            Caso deseje corrigir todos os arquivos TS rondando um npm run, basta adicionar um script em package.
+                -//"lint": "eslint src --ext .ts --fix"             
+        }
+
+        {
+            Instalação do prisma no Backend - foi utilizado o SQLite, utilizaremos o MySql
+            Instalar como dependência de desenvolvimento para executar apenas alguns comandos,
+            como criar as migrações etc. -//npm i prisma -D
+
+            para listagem dos comandos que podem ser executados com o prisma basta executar o -//npx prisma -h
+
+            informar qual banco de dados será utilização para criação do arquivo .env e do app/src/prisma/Schema 
+            -//npm prisma init --datasource-provider SQLite
+
+            ENV - variaáveis ambientes
+
+            @default(uuid()) - id único universal. Padrão codificado.
+
+            para acessar o DB do prisma, instale a dependência @prisma/client
+            -//npm i @prisma/client
+        }
+    }
+
+    Frontend / web {
+        Instalação do Next JS 
+        -// https://nextjs.org/learn/basics/create-nextjs-app/setup
+
+        Excluir alguns arquivos do projeto {
+            readme.md
+            /public/ excluir todos
+            /src/app/ excluir favicon, globlals.css excluir toda configuração, page.tsx excluir todo html
+
+            não altera nada no tsconfig.json
+
+            O Roteamento de página já vem integrado no Next. todos os diretórios dentro de /src/app que possuem
+            o nome page.tsx será uma rota com o nome do diretório. O diretório app é exclusivo para as páginas
+            da aplicação. Podendo ser incluido subdiretórios nos diretorios /src/app/ignite/roteamento/page.tsx 
+            assim por diante.
+
+            ESLint já vem instalado no projeto Next React no direotio raiz /web/.eslintrc.json com sua configuração
+                padrão { "extends": "next/core-web-vitals" }
+
+            Instalação da biblioteca da Rocketseat para usar a configuração ESLint -// @rocketseat/eslint-config -D
+
+            Adicionar a biblioteca no arquivo .eslintrc.json como array
+
+
+        }
+    }
+
+    Frontend / Mobile {
+        Configuração do ambiente mobile:
+            https://react-native.rocketseat.dev/
+
+        documentação do expo : -//https://docs.expo.dev/?utm_source=google&utm_medium=cpc&utm_content=search&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3NaJD_3U4wIcbHc53prZNHISM0SCe0pGGiJQ_cUDXyeTC6mHZjlDhxoC_VEQAvD_BwE
+
+        Iniciando o projeto mobile: 
+        npx create-expo-app my-app (my-app nome do projeto)
+
+        O arquivo /mobile/App.js deve serr mudado para extensão tsx. 
+        O expo entende automaticamente entensões tsx
+        Após isso rodar o projeto npm run start para que o projeto identifique que está rodando TSX e instale as dependências.
+
+        No React Native não usa-se tags semÇântica (HTML) e sim componentes que são único, exempo, <Text /> equivale a <p> e <h1>
+        O CSS é Feito em -//CSS in JS , que é basicamente um objeto.
+        -//
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                backgroundColor: '#fff',
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            text: {
+                fontSize: 64
+            }
+        });
+
+        Para acessar as propriedades do objeto stilizado basta usar o componente <View ou qualquer /> e passar 
+        o styles={nomeDoObjeto.Propriedade}
+            -//<View style={styles.container}>
+            -//<Text style={styles.text}>Hello World</Text>
+      
+
+        No ambiente mobile não existe px, o valores são atribuidos apenas com -//fonteSize: 20
+
+        Se quiser usar o Tailwind no React Native será necesário instalar um pacote da comunidade o Nativewind
+        Para instalar vai em https://www.nativewind.dev/quick-starts/expo
+        Instale o Nativewind como dependência e tailwindcss como dependencia de desenvolvimento 
+        -//npm i nativewind 
+        -//npm i tailwindcss -D
+
+        Depois rodar o comando -//npx tailwindcss init , isso vai criar o tailwind.config.Js
+        Dentro desse arquivo substitua o content: [] por 
+        -//content: ["./App.{js,jsx,ts,tsx}", "./<custom directory>/**/*.{js,jsx,ts,tsx}"],
+        Isso significa que ele só vai rodar o tailwind no arquivo App.js ou jsx ou ts ou tsx, vamos mudar para apenas App.tsx
+
+        Além disso, o content oferece a opção de configurar mais um diretório para rodar o tailwind, vamos mudar o custom directory
+        Ficando assim -//content: ["./App.tsx", "./app/**/*.tsx"],
+
+        Abra o arquivo babel.config e adicione a linha -//plugins: ["nativewind/babel"], abaixo de presets:
+
+        Por fim, como estamos utilizando typescript precisaremos acessar https://www.nativewind.dev/getting-started/typescript
+        Isso significa que precisamos adicionar o types no projeto, podemos fazer isso dentro do tsconfig.json, ficando da seguinte forma:
+        -// adicionamneto o "types": ["nativewind/types] dentro do compilerOptions
+        "compilerOptions": {
+            "types": [
+                "nativewind/types"
+            ]
+        },
+
+        Agora já pode começar usar o Tailwind.
+
+        Por padrão, todos os elementos React Native tem display flex
+
+        Modifique a StatusBar colocando um stilo light para deixar os items brancos, e translucent, caso 
+        a NavBar tenha elementos será apresentado
+        <StatusBar style="light" translucent/> 
+    }
+}
+
+Parei de documentar: 20:00 - 49:00 - 50:00 inicia Frontend
+
+Parei na instalação do Prisma: 40:00
+
+Parei na instalação do Next JS: 51:00
+
+Parei explicação do Tailwind: 1:10:00
