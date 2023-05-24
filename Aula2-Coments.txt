@@ -135,7 +135,46 @@
     }
 
     server {
-        
+        Primeiro passo criação das tabelas do db
+
+         isPublic  Boolean  @default(false) //Por padrão False
+        createdAt DateTime @default(now()) //Definida automaticamente data Atual no ato da criação do registro
+
+        Iniciar o CRUD criando um arquivo de rotas separados do arquivo principal server.ts
+            /src/routes/memories.ts
+                Dentro o arquivo memories adicionar a função que será exportada
+                import { FastifyInstance } from 'fastify';
+                export async function memoriesRoutes(app: FastifyInstance) { -// acessar documentação do Fastify
+                    adicione as rotas referentes a memorias
+                }
+
+                importe o prisma
+                criei um arquvio em /src/lib/prisma.ts -// para exportar o prisma para as rotas.
+                    O log: ['query'], serve para apresentar a consulta sql realizada no db
+
+                em /src/server.ts utilize o método register() do fastify para utilizar um arquivo de rota externo
+
+                Como o texto das memorias deve ser reduzido, pode-se fazer um map() por cada memória para retornar a 
+                estrutura desejada
+
+                Instalação da biblioteca Zod para validação -// npm i zod
+                import { z } from 'zod'
+
+                -//Utilizando o Zod para validar se o id que está sendo passado é do tipo string e se segue o padrão uuid()
+                -//Passamos o request.params para dentro do paramsSchema usando o método parse
+                const paramsSchema = z.object({
+                    id: z.string().uuid(),
+                })
+
+                const { id } = paramsSchema.parse(request.params)
+
+                -//findFirstOrThrow busca no prisma a tupla com o where selecionado, caso não seja encontrado retorna
+                erro
+                const memory = prisma.memory.findFirstOrThrow
+
+                Após desenvolvimento do CRUD , instalar o plugin Cors para "técnica de segurança" gerenciamento do acesso ao back-entenda
+                    -//npm i @fastify/cors
+
     }
 }
 
@@ -146,3 +185,7 @@ Parei 36:00:00 - Construção interface Icon User
 Parei 44:00:00 - Contrução interface 
 
 Parei 50:00:00 - Início Mobile
+
+Parei 01:13:00 - Continuação construção da API 
+
+Parei 01:35:00 - Continuação construção da API
