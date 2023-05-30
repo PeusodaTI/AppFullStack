@@ -1,0 +1,215 @@
+// Coments Aula 3
+
+{
+    Protocolo OAuth {
+        Nos permite fazer login dentro de uma aplicação usando uma conta existente em outra aplicação.
+
+        OAuth (Open Authorization) é um protocolo de autorização aberto que permite que aplicativos de 
+        terceiros obtenham acesso limitado a recursos protegidos em nome de um usuário, sem necessariamente 
+        precisar compartilhar suas credenciais de login. Ele é amplamente utilizado para permitir a 
+        autenticação e autorização em sistemas distribuídos, como APIs e aplicativos web.
+
+        O objetivo principal do OAuth é fornecer um fluxo seguro e padronizado para que um aplicativo 
+        (conhecido como cliente) possa obter acesso a recursos protegidos em um servidor, em nome de um 
+        usuário, com sua permissão explícita. Em vez de compartilhar diretamente as credenciais do usuário,
+         o OAuth usa tokens de acesso para representar a autorização concedida.
+
+
+        O Fron-end através de tela de Login ir solicitar informações do usuário ao serviço GitHub,
+        Ao realizar login, o GitHub irá devolver um código na URL para aplicação,
+            Um Access Token (ou token de acesso) é uma credencial usada em sistemas de autenticação para 
+            autorizar e permitir o acesso a recursos protegidos. Ele é frequentemente utilizado em aplicações
+            web e APIs para verificar a identidade do usuário e garantir que ele tenha permissão para realizar
+            determinadas ações.Um Access Token (ou token de acesso) é uma credencial usada em sistemas de 
+            autenticação para autorizar e permitir o acesso a recursos protegidos. Ele é frequentemente 
+            utilizado em aplicações web e APIs para verificar a identidade do usuário e garantir que ele 
+            tenha permissão para realizar determinadas ações.Um Access Token (ou token de acesso) é uma 
+            credencial usada em sistemas de autenticação para autorizar e permitir o acesso a recursos 
+            protegidos. Ele é frequentemente utilizado em aplicações web e APIs para verificar a identidade 
+            do usuário e garantir que ele tenha permissão para realizar determinadas ações.    
+        
+    }
+
+    web {
+        criando uma aplicação no GitHub
+            settings -> Developer Settings -> OAuth Apps -> Register new OAuth -> 
+            Nome aplicação -> Nome: Spacetime (DEV),
+            URL da aplicação -> Homepage URL: http://localhost:3000,
+            Rota para callback das informações -> Authorization callback URL: http://localhost:3000/api/auth/callback
+
+        Após a criação o GriHub fornecerá duas informações importantes: 
+            CLIENT ID E CLIENTE SECRETS
+
+        
+        Criar em /src/ um arquivo .env : -//.env.local -> Para declaração de variáveis ambiente no Next / React
+        Adicione a variável ambiente GITHUT_CLIENT_ID=
+            {Importante} -//O Next lê automaticamente as variáveis ambiente
+        Para tornar uma variável ambiente publica para toda aplicação adicione NEXT_PUBLIC nas mesmas.
+        Essa é uma peculiaridade do Next
+            NEXT_PUBLIC_GITHUB_CLIENT_ID
+
+        Para acessar o code do GitHub crie um link com a URL>
+         -//href={`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`}
+        Passando o Client_id pela variavel ambiente criada no .env.
+
+        Após receber o code do github, criar rota de acesso no Back-end
+
+        Após receber o Token no front-end, deve-se armazenar o mesmo em algum lugar, neste caso, faremos o armazenamento
+        nos cookies do navegador,
+
+        adicionar redirecionamento do Next, 
+            -//redireciona o usuário para a rota raiz da aplicação, o request.url contém a url da aplicação.
+            const redirectURL = new URL('/', request.url)
+
+            para salvar o token nos cookies envie junto com a url redirecionada um objeto headers de configuração
+                O Set-Cokie é usado para criar um token, 
+                o token é o próprio nome e valor do token, 
+                o Path é onde o token estará disponível, nesse caso na aplicação inteira, caso queira privar,
+                basta adicionar as rotas que deseja, exemplo, /auth. então somente as rotas que comecem com auth
+                teriam acesso ao token
+            return NextResponse.redirect(redirectURL)
+                headers: {
+                    'Set-Cookie': `token=${token}; Path=/;`,
+                },
+
+                por padrão, em aplication/token, o expired é session, ele é temporário. 
+                Para definir o tempo de experição do token, adicionando o parâmetro max-age=${tempo em segundos};
+
+            Apresentação dos dados do usuário contido no Token 
+                Por padrão todas as páginas do Next tem acesso aos cookies,
+                Criar um componente Profile contendo as informações quando o usuário estiver logado.
+                Para extrair as informações contidas no token é necessário utilizar a Biblioteca JWT-Decode
+                -// npm i jwt-decode
+        
+                em /lib/ crie um arquivo auth.ts para auxiliar com os dados do Cookie, nesse arquivo pegaremos os dados
+                do token através do jwr-decode e retornaremos para as outras páginas que precisar
+
+            Em /Profile.tsx utilize os dados do token importando o arquivo auth.ts chamando a função getUser().
+            Para a imagem do avatar utilize o componente Image de dentro do Next para otimização da mesma,
+                Como a imagem é um arquivo externo, é necessário informar a altura e a largura que desejamos carregadr a imagem
+
+                Por padrão o next não carrega imagens externas, então vá no next.config e adicione o github
+                    -//Informando quais dominios eu desejo carregar imagens
+                    const nextConfig = {
+                        images: {
+                            domains: ['avatars.githubusercontent.com'],
+                        },
+                    }
+    }   
+
+    server {
+        Copie o Client ID e Secrets do GitHub e adicione no .env da aplicação.
+            GITHUT_CLIENT_ID
+            GITHUB_CLIENT_SECRET -> Informação sensível.
+        
+        Para Lê variáveis ambientes do arquivo .env é necesário instalar o pacote DotEnv como dependência de
+            desenvolvimento.
+            -// npm i dotenv -D
+            fazer importação import 'dotenv/config'
+
+        Criar a rota de register em " /src/routes/auth.ts " para verificar o código do github e registrar o usuário no DataBase
+            buscar o acessToken no github usando o axios
+                const acessTokenResponse = await axios.post(
+                    'https://github.com/login/oauth/acess_token',
+                    null,
+                    {
+                        params: {  -//Parametros exigidos
+                            code,
+                            client_id: process.env.GITHUT_CLIENT_ID,
+                            client_secret: process.env.GITHUB_CLIENT_SECRET,
+                        },
+                        headers: {   -//cabeçalho da resposta, ou seja, resposta e formato Json
+                            Accept: 'aplication/json',
+                        }
+                    }
+                )
+
+                Desestruture a resposta pegando o access_token
+                    const { acess_token } = acessTokenResponse.data
+
+                Faça nova chamada no github usando o axios para buscar os dados do usuário através do access_token
+                    
+                Padrão autenticação { Authorization }
+
+                O access_token tem um tempo de expiração, por este motivo não é possível utilizá-lo por muito tempo.
+                    JWT = Json Web Token - é um token criado no back-end que é enviado para o front-end usar esse token
+                    nas requisições que ele faz para o back-end para identificar o usuário logado.
+
+                Instalar o pacote JWT de dentro do fastify.
+                    -//npm i @fastify/jwt
+
+                Import o pacote JWT no server.ts
+                registre o pacote assim como registrou o cors, passando o secret, que seria basicamente a criptografia
+                    para identificação do token usado.
+
+                para gerar o token, será necessário passar dois objetos, o primeiro contem os dados não sensíveis do usuário,
+                os dados que desejo apresentar na interface web, como nome avatar etc.
+                o segundo contem a informação de identificador única daquele usuário e o tempo que o token deverá expirar.
+                    const token = app.jwt.sign({
+                        name: user.nome,
+                        avatarUrl: user.avatarUrl,
+                    }, {
+                        sub: user.id,
+                        expiresIn: '30 days',
+                    })
+                para validação na rota auth do usuário logado, será necessário criar um arquivo auth.d.ts
+                    e usar a importação do JWT informando os campos que o token criado deve ter. nesse caso o usuário 
+                        user -> https://github.com/fastify/fastify-jwt - TypeScript
+
+                        import "@fastify/jwt"
+
+                    declare module "@fastify/jwt" {
+                    interface FastifyJWT {
+                        payload: { id: number } // payload type is used for signing and verifying
+                        user: {
+                        id: number,
+                        name: string,
+                        age: number
+                        } // user type is return type of `request.user` object
+                    }
+                    }
+
+                    // index.ts
+                    fastify.get('/', async (request, reply) => {
+                    request.user.name // string
+
+                    const token = await reply.jwtSign({
+                        id: '123'
+                        // ^ Type 'string' is not assignable to type 'number'.
+                    });
+                    })
+
+                    Nesse caso criamos o auth.d.js 
+                        import "@fastify/jwt"
+
+                        declare module "@fastify/jwt" {
+                            export interface FastifyJWT {
+                                user: {
+                                    sub: string,
+                                    name: string,
+                                    avatarUrl: string
+                                } 
+                            }
+                        }
+
+                Caso queira dentro do arquivo de rota fazer a validação do token em todas as rotas insira 
+                    app.addHook('preHandler', async (request) => {
+                        await request.jwtVerify()
+                    })
+
+                    se não, apenas insira o  await request.jwtVerify() dentro da rota desejada;
+                
+                 app.get('/memories/:id', async (request, reply) => {
+                    reply serve para retornar uma resposta
+    })
+                    
+
+    }
+}
+
+
+Parei 00:16:00 -> Obtenção code GitHub
+Parei 00:22:00 -> Rotas autenticação
+
+Parei 00:51:00 -> Retornando Web para lidar com callback do GitHub na resposta contendo o código
+Parei 01:12:00 -> Iniciando autenticação no Mobile
