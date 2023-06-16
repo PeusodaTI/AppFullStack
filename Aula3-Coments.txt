@@ -202,6 +202,102 @@
                  app.get('/memories/:id', async (request, reply) => {
                     reply serve para retornar uma resposta
     })
+
+    Mobile {
+        Criação autenticação no Mobile  
+            Instalação do pacote expo auth session
+                1º -//npx expo install expo-auth-session expo-crypto
+                2º Em app.json crie um "Scheme", -//"scheme": "spacetime",
+                3º http: Expo/Authentication Guide e selecionar a plataforma OAuth, nesse caso github
+                4º Criar novo app no github (Developer Application) para o mobile. 
+                5º Copie da doc expo    
+                    const discovery antes do App() e dentro de App() useAuthRequest
+                    const [request, response, promptAsync] = useAuthRequest(
+                        {
+                        clientId: 'fefe3b624243aee1f260',
+                        scopes: ['identity'],
+                        redirectUri: makeRedirectUri({
+                            scheme: 'spacetime'
+                        }),
+                        },
+                        discovery
+                    );
+                        
+                    useEffect(() => {
+                        if (response?.type === 'success') {
+                        const { code } = response.params;
+                        }
+                    }, [response]);
+                6º instalação do axios para requisições
+                7º Altere a função promptAsync para o nome que deseja chamar para Login = -//signInWithGitHub
+                    passe a função para o botão de entrar usando o método onPress usando uma arrow function
+                8º Ao tentar acessar o gitHub vai da erro, faça o console.log para pegar o endereço IP da aplicação.
+                    Altere o endereço de IP no callbackUrl do GitHub
+                    console.log(makeRedirectUri({
+                        scheme: 'spacetime'
+                    }))
+
+                9º Crie em /src/ lib/api.ts -> /src/lib/api.ts para exportar a utilização padrão do axios na
+                url do servidor.
+                    deve ser utilizado o endereço do pc devido o localhost não ser exposto para o Android
+                    export const api = axios.create({
+                        baseURL: 'http://endereçoIPDoPC:portaServer',
+                    })
+
+                10º O servidor server.ts não irá receber as requisições do Mobile, para isto, em Listen adicione
+                0.0.0.0
+                    app
+                        .listen({
+                            port: 3333,
+                            host: '0.0.0.0',
+                        })
+                        .then(() => {})
+                11º Em ambiente de desenvolvimento o client_id e client_secret devem ser mudado no arquiv .env do servidor, 
+                passando as configurações do OAuth criado para o Mobile.
+
+                12º O React Native não possui suporte a Cookies, sendo assim, será necessário salvar o token no Secure Store 
+                direto do expo.
+                    https://docs.expo.dev/versions/latest/sdk/securestore/
+                    Ele é basicamente uma Biblioteca para trabalhar com storege que são mais sensíveis, no caso do token
+                
+                13º Para salvar o item no Storege do Mobile, primeiro importe o securestore
+                    import * as SecureStore from 'expo-secure-store';
+                    Depois set o valor
+                    SecureStore.setItemAsync('token', token)
+                
+                14º Navegação do usuário para outras telas. Utilizar a Biblioteca Expo Router, Permite fazer a mesma utilização
+                de rotas do Next JS.
+                    -//https://expo.github.io/router/docs/
+                    -//npx expo install expo-router react-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar react-native-gesture-handler
+                    Modificar o package.json de "main": "node_modules/expo/AppEntry.js", para
+                    "main": "ndex.js",
+                    crie um arquivo index.js na raiz do projeto e adicionar 
+                        -//import 'expo-router/entry'
+                    
+                    adicionar no package.json o TypeScript
+                    "overrides": {
+                        "metro": "0.76.0",
+                        "metro-resolver": "0.76.0"
+                    }
+
+                    Configurar o plugin do Babel.config.js adicionando o require
+                    -//plugins: ["nativewind/babel", require.resolve("expo-router/babel")],
+
+                    Crie um diretório na raiz como na web, /app. 
+                    Da mesma forma do Next, todos os arquivos que estão em app funcionam como rota.
+                    Crie a página inicial index.tsx
+                    Pegue todo conteudo de App.tsx e mude para index.tsx
+
+                    Para utilizar o roteamento basta importar o UseRouter 
+                    import { useRouter } from "expo-router";
+                    definir o router no tsx (Função App())
+                    const router = useRouter();
+
+                    Dentro do useEffect não podemos usar o async -//useEffect(async)
+                    Dessa forma vamos modificar o código para possibilitar usar o async em uma funçao externa ao useEffect
+
+
+    }
                     
 
     }
@@ -213,3 +309,4 @@ Parei 00:22:00 -> Rotas autenticação
 
 Parei 00:51:00 -> Retornando Web para lidar com callback do GitHub na resposta contendo o código
 Parei 01:12:00 -> Iniciando autenticação no Mobile
+Parei 01:30:00 -> Obtendo code gitHub

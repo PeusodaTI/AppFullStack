@@ -1,0 +1,245 @@
+Coments Aula 4 {
+    {
+        Conceitos para estudo:
+        Back-end for front-end BFF
+
+    }
+
+    Web {
+        Layout é tudo aquilo que vai ser igual, repetido entre as páginas do projeto.
+        No Next, o arquivo em /src/app/Layout.tsx é o arquivo que contém aquilo que não muda no projeto.
+
+        Dentro do Layout.tsx o { children } Significa o contéudo atual da página filha, ou seja, o layout é fixo
+        e a página que está sendo exibida é alocada no local onde o children está no layout.
+
+        Criação rota logout
+            criei o diretorio em app/api/auth/logout/route.tsx
+            Como estamos trabalhando com Cookie não há um método delete-cookie,
+            Dessa forma, precisamos novamente setar o valor no cookie passando os pparametros para zerar o mesmo.
+
+            headers: {
+                'Set-Cookie': `token=; Path=/; max-age=0;`,
+            },
+
+            redirecione o link de logout para a rota de logaut /api/auth/logaut
+
+            Modificar o localhost pelo ip do pc na api
+
+            Hack Form - Para estilizar a label ao invés do input file você pode usar a seguinte forma.
+                <label htmlFor="media">Anexar mídia</label>
+                <input type="file" id="media" className="invisible" />
+            Assim mesmo se o input for invisible ao clicar no label abrirá o file
+
+            A utilização do checkbox nativa do HTML é complicada de estilizar, utilizamos o Plugin do Tailwind.
+                Tailwind Forms -//https://github.com/tailwindlabs/tailwindcss-forms
+                -//npm install -D @tailwindcss/forms
+                adicione require('@tailwindcss/forms'), no tailwind.conf em plugin: {}
+                -// plugins: [require('@tailwindcss/forms')],
+                Agora é possível fazer toda estilização Tailwind dentro dos elementos HTMLs usando o className
+
+            Propriedade speelCheck do textarea -> Não informar erros de portugues
+                resize-none -> Não permitir redimensionamento da área
+                focus:ring-0 -> Box-shadow do tailwind 
+
+            MiddleWare de autenticação no front-end
+                dentro de /src/ crie um arquivo middleware.ts
+                Neste arquivo, é necessário exportar uma configuração dizendo onde o middleware irá atuar
+                    export const config = {
+                        matcher: '/memories/:path*',
+                    }
+                Nesse caso, em todas as rotas dentro de memories,
+                    primeiro pega o valor do cookie token e verifica se ele é vazio 
+                        caso seja redirecionamos o usuário para a url de login e salvamos a url que ele
+                        estava tentando acessar antes de estar logado.
+                        Caso o usuario ja esteja logado o middleware não fará nada.
+                            o atributo hhtpOnly significa que o token não ficará visivel para o usuário,
+                            apenas para a camada Back-end do Front-end
+                    const token = request.cookies.get('token')?.value
+
+                    if (!token) {
+                        return NextResponse.redirect(signInURL, {
+                        headers: {
+                            'Set-Cookie': `redirectTo=${request.url}; Path=/; HttpOnly; max-age=20;`,
+                        },
+                        })
+                    }
+
+                    return NextResponse.next()
+
+                    dentro de callback/api pegue o valor do token criado quando o usário for redirecionado do login
+                    const redirectTo = request.cookies.get('redirectTo')?.value
+                    caso exista token, redirecione  o usuário para apágina da url criada no token
+                    const redirectURL = redirectTo ?? new URL('/', request.url)
+        }
+
+
+    Mobile {
+        Criação do layout da aplicação mobile {
+            Inicialmente em /App/ crie um arquivo _layout.tsx
+            Nesse arquivo ficarão as coisas que serão iguais em toda aplicação
+
+            if(!hasFontsLoaded) { //Enquanto as fontes não carregaram, mostrar a splashScreen (Imagem)
+                return <SplashScreen />
+            }
+
+            Semenlhante a Web, o layout terá a parte fixa das páginas  e a parte modificável, que será os componentes,
+            Sendo assim, deve ser adicionado um componente de navegação, dentro de expo existe vários componentes,
+            nesse caso utilizamos o <Stack /> navigation que funciona como uma pilha, carregadno uma página sobre a outra
+            gerando uma animação.
+            O <Stack /> no layout representa onde aparecerá o conteúdo desejado para apresentação.
+                esse componente deve ter duas propriedades no objeto de configuração.
+                    screenOptions={{
+                        headerShown: false, //Ocultar o cabeçalho "Index"
+                        contentStyle: {backgroundColor: 'transparent' } //Deixar o fundo transparente
+                    }} 
+            
+            No layout.txs criar um stato para setar se o usuário está logado ou não, com isso faremos o direcionamento
+            de páginas a partir disso.
+
+            Utilize o SecureStore para verificar se o usuário já está logado, se sim, o useState será setado como true
+            se não, será setado como false (useState(!!token))
+            
+                useEffect(() => {
+                    SecureStore.getItemAsync('token').then((token) => {
+                    setIsUserAuthenticated(!!token)
+                    })
+                }, [])
+
+            No Stack navigation no layout podemos fazer redirecionamento de páginas usando o Stack.screen
+                <Stack.Screen name="index" redirect={isUserAuthenticated} />
+                <Stack.Screen name="memories" />
+            Basta colocar o nome do arquivo tsx contigo dentro de /App.
+            A propriedade redirect recebe valor booleano, caso seja positivo o usuario será redirecionado
+            para a proxima rota.
+
+            Em New.tsx estilizar a página de cadastro de memoria
+            Por padrão o react native o flex direction é column
+            Para redirecionamento entre página pode-se utilizar o Link de dentro do 'expo/router'
+            a propriedade 'asChild' significa que tudo que estiver dentro deste link no caso o 
+            <TouchableOpacity> se comportará como Link.
+                <Link
+                    href="/memories"
+                    asChild
+                >
+                    <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-purple-500">
+                        <Icon name="arrow-left"/>
+                    </TouchableOpacity>
+                </Link>
+            
+            Para saber qual distância segura da tela, utilize o Hook useSafeAreaInsets() para desestruturar os valores
+                import { useSafeAreaInsets } from 'react-native-safe-area-context'
+                const { bottom, top } = useSafeAreaInsets()
+            Pode ser pegado todos os valores da tela, nesse caso pegaremos o bottom e o top
+            Passe esses valores para o Css da View principal, OBS: esses valores não podem ser usados com o Tailwind
+                Para <View /> style={{ paddingBottom: bottom, paddingTop: top }}
+                Para <ScrollView /> contentContainerStyle={{ paddingBottom: bottom, paddingTop: top }}
+
+            O Checkbox não é usual no desenvolvimento mobile, nesse caso utiliza-se o Componente <Switch /> nativo
+                do React Native
+                trackColor propriedade interna do Switch
+                thumbColor propriedade bolinha seleção.
+
+            O React Native não possui o componente TextArea, sendo assim, para utilizar esse componente é necessário
+            Criar um <TextInput /> passando como propriedade multiline
+        }
+    }
+
+    Server {
+        Upload de arquivos {
+            Devido o Json ser uma estrutura de texto, não é usual enviar imagens em formato Json para o Back-end
+            -- Stream no Node --
+                Instalar o plugin multipart
+                    --npm i @fastify/multipart
+                    Esse plugin habilita o fastify a entender o -- Multipar Form Data -- Forma de envio de dados 
+                    do front-end para o back-end em qualquer tipo de dado, é o padrão de envio do "Submit" do formulário
+            
+            Importar em /server o multipart de dentro de fastify/multipart
+                --//https://github.com/fastify/fastify-multipart
+                --/import multipart from '@fastify/multipart'
+            Registre o pacote
+                app.register(multipart)
+
+            Crie uma rota para upload
+            /routes/upload.ts
+
+            registre a rota
+                app.register(uploadRoutes)
+
+            dentro da rota, primeiro passo buscar o arquivo que está sendo enviado
+            pode ser definidito um objeto de configurações dentro da função file()
+            Nesse caso o Limits determina o tamanho máximo do arquivo em MB
+                --//const upload = await request.file({
+                    limits: {
+                        fileSize: 5_242_880
+                    }
+                })
+            
+            Verificar o tipo de arquivo que está sendo enviado através do seu MimeTyoe 
+                O MimeType é uma caracterização global dos arquivos.
+                Para fazer essa verificação é necessário utilizar Regex.
+                
+                //Cria o regex e verifica se o regex foi validado
+                const mimeTypeRegex = /^(image|video)\/[a-zA-Z]+/
+                const isValideFileFormat = mimeTypeRegex.test(upload.mimetype)
+            
+            Criar um id Random UUID 
+                -// o 'node:crypto' significa que o crypto é um modulo interno do Node e não precisa ser instalado
+                import { randomUUID } from 'node:crypto'
+                const fileId = randomUUID()
+
+                pegar a extensão do arquivo usando a função path do node passando o arquivo recebido e seu nome original
+                    --//import { extname } from 'node:path'
+                    const extesion = extname(upload.filename)
+
+            Criar uma Stream de escrita uma das principais feature do Node
+            função resolve() do node:path -// serve para padronizar o caminho para reconhecimento dos SO
+                import { createWriteStream } from 'node:fs'
+                -//passar o caminho para salvar o arquivo.
+                const writeStream = createWriteStream(
+                    resolve(__dirname, '../../uploads', fileName),
+                )
+
+                -- O pipeline permite eu aguardar o processo de uma stream finalizar, consigo verificar quando
+                um processo chegou até o final --            
+                -- O promisify transforma algumas funções mais antigas que não tem suporte a -- Promise -- em Promise
+                permitindo a verificação do encerramento da promise, essa conversão é feita na variavél pump --
+
+                import { pipeline } from 'node:stream'
+                import { promisify } from 'node:util'
+
+                const pump = promisify(pipeline)
+
+            Criar URL para acessar os uploads realizados.
+                -// request.protocol retorna o protocolo utilizado na requisição -- HTTP HTTPS,
+                -// request.hostname retorna o dominio da aplicação -- Localhost:3333, 192.100.0.0:3333
+                    -- const fullUrl = request.protocol.concat('://').concat(request.hostname) --
+                
+                O armazenamento interno de arquivo no servidor não é interessante em produção. existe alguns serviços
+                para fornecer esse recurso
+                    -- Amazon S3, Google GCS, CloudeFlare R2 --
+
+            Por padrão o Node não expoe as pastas dentro do projeto , por segurança etc. 
+                Para acessar um diretorio específico da aplicação, no caso da pasta upload, instale o modulo
+                fastify static para tornar o diretorio que queremos em público.
+                --// npm i @fastify/static
+
+                Em /server.ts
+                    Registre o modulo static e passe o objeto de configuração.
+                        -- o root é qual pasta queremos que nossos arquivos sejam estaticos
+                        -- o prefix é a parte da url que acessamos 
+                        app.register(require('@fastify/static'), {
+                            root: resolve(__dirname, '../uploads'),
+                            prefix: '/uploads',
+                        })
+        }
+    }
+
+}
+
+Parei: 00:26:00 -> Criando MiddleWare
+Parei: 00:42:00 -> Criando Rotas autenticação Mobile
+Parei: 00:51:00 -> Criando Rotas autenticação Mobile
+Parei: 01:03:00 -> Estilização Página New
+
+Parei: 01:14:00 -> Upload de Arquivos no Back-end
+Parei: 01:30:00 -> Upload de Arquivos no Back-end
