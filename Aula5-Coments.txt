@@ -1,0 +1,44 @@
+Web {
+    A documentação do React sugere utilização de um Frame deste o início do projeto, independente do tamanho do projeto.
+    Um dos princípais objetivos do Next é evitar enviar JS desnecessário para o navegador.
+    
+    BFF no Next (Verificar)
+
+    Os componentes que necessitam de reatividade precisam de JS, nesse caso, os mesmos devem ser 
+    ao utilizar o 'use client' no inicio do componente, o Next pegará todo o JavaScript do componente e irá enviar para o navegador 
+        encapsular o componente que necessita de interatividade separando ele do contexto para usar o 'use client'
+
+    Propriedades de <img> e <input>
+        aspect-video - aspecto ratio de video 16/9 - se a altura diminuir a largura adapta
+        object-cover - evitar distorcer a imagem quando diminuir
+        <Input> accept="image/*" - aceita apenas image
+
+    ChatGPT
+        Pesquisar diferença entre currentTarget e target no
+            new FormData(event.currentTarget / event.target)
+            
+            console dados do formulário
+            //- console.log(Array.from(formData.entries())) -//
+
+    //- A url de upload no back-end não suporta Json, somente MultiPartFormData (Verificar)
+    const uploadFormData = new FormData()
+
+    Como a rota de criação de memoria solicita que o usuário esteja logo, devemos passar o token no cabeçalho da requisição
+    para a rota '/memories'
+
+    Verificar Use Client - não acessar funções
+    porém, para pegar um cookie em um componente que tenha o 'use client' ou seja, que precise de JS no componente
+    não é possivel usar a função Cookie vindo de Next/headers assim como algumas outras função
+    
+    Para acessar os cookies no 'use client' é necessário utilizar a biblioteca js-cookie
+        //-- npm i js-cookie
+        como a biblioteca não foi construida com TS e estamos utilizando TS será necessário instalar um
+        pacote a parte para fazer a integração da biblioteca com o TS
+        //-- npm i --save-dev @types/js-cookie
+            const token = Cookie.get('token')
+    
+    Após salvar a memória, redirecionar o usuário para a Home
+    
+}
+
+Parei em 00:22:00 - criando memória
